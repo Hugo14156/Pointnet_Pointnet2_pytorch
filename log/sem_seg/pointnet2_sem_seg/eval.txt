@@ -88,3 +88,9 @@ class clutter       , IoU: 0.416
 2021-03-23 22:45:35,271 - Model - INFO - eval point avg class IoU: 0.535313
 2021-03-23 22:45:35,271 - Model - INFO - eval whole scene point avg class acc: 0.620289
 2021-03-23 22:45:35,271 - Model - INFO - eval whole scene point accuracy: 0.829893
+2024-08-09 11:11:09,861 - Model - INFO - PARAMETER ...
+2024-08-09 11:11:09,861 - Model - INFO - Namespace(batch_size=32, gpu='0', num_point=4096, log_dir='pointnet2_sem_seg', visual=True, test_area=5, num_votes=3)
+2024-08-09 11:54:31,179 - Model - INFO - PARAMETER ...
+2024-08-09 11:54:31,190 - Model - INFO - Namespace(batch_size=32, gpu='0', num_point=4096, log_dir='pointnet2_sem_seg', visual=True, test_area=5, num_votes=3)
+2024-08-09 11:59:43,188 - Model - INFO - PARAMETER ...
+2024-08-09 11:59:43,188 - Model - INFO - Namespace(batch_size=32, gpu='0', num_point=4096, log_dir='pointnet2_sem_seg', visual=True, test_area=5, num_votes=3)

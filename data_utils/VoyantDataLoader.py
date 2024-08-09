@@ -31,30 +31,29 @@ class VoyantDataset(Dataset):
             csvs_split = []
             for csv_path in csv_paths:
                 csv_path = os.path.join(data_root, csv_path)
-                csvs_temp = []
                 point_count = pd.read_csv(
                     csv_path, usecols=["point_idx"], nrows=1000000
                 )["point_idx"].max()
+                row_count = pd.read_csv(csv_path, usecols=["point_idx"]).shape[0]
                 for chunk in tqdm(
                     pd.read_csv(
                         csv_path,
                         usecols=["x", "y", "z", "object_name"],
                         chunksize=point_count,
+                        nrows=int(row_count / 8),
+                        skiprows=4 * int(row_count / 8),
                     ),
-                    total=15000,
+                    total=int(row_count / 8),
                 ):
-                    csvs_temp.append(chunk)
-                    # print(len(csvs_temp))
-                csvs_temp = csvs_temp[: int(len(csvs_temp) / 4)]
-                for csv in csvs_temp:
-                    csvs_split.append(csv)
+                    csvs_split.append(chunk)
         else:
             csvs_split = []
             for csv_path in csv_paths:
                 csv_path = os.path.join(data_root, csv_path)
-                csvs_temp = []
+                row_count = pd.read_csv(csv_path, usecols=["point_idx"]).shape[0]
+                row_count = pd.read_csv(csv_path, usecols=["point_idx"]).shape[0]
                 point_count = pd.read_csv(
-                    csv_path, usecols=["point_idx"], nrows=1000000
+                    csv_path, usecols=["point_idx"], skiprows=15 * int(row_count / 16)
                 )["point_idx"].max()
                 for chunk in tqdm(
                     pd.read_csv(
@@ -62,25 +61,24 @@ class VoyantDataset(Dataset):
                         usecols=["x", "y", "z", "object_name"],
                         chunksize=point_count,
                     ),
-                    total=15000,
+                    total=9605,
                 ):
-                    csvs_temp.append(chunk)
-
-                csvs_temp = csvs_temp[int(len(csvs_temp) / 4) * 3 :]
-                for csv in csvs_temp:
-                    csvs_split.append(csv)
+                    csvs_split.append(chunk)
 
         self.csv_points, self.csv_labels = [], []
         self.csv_coord_min, self.csv_coord_max = [], []
         num_point_all = []
         labelweights = np.zeros(self.num_classes)
+        point_num = csvs_split[0].index[0]
 
         for csv in tqdm(csvs_split, total=len(csvs_split)):
             points = []
             labels = []
             for i in range(len(csv)):
-                points.append((csv["x"][i], csv["y"][i], csv["z"][i]))
-                label = str(csv["object_name"][i])
+                points.append(
+                    (csv["x"][point_num], csv["y"][point_num], csv["z"][point_num])
+                )
+                label = str(csv["object_name"][point_num])
                 if label == "SM_WarehouseLine_A1":
                     labels.append("floor")
                 elif label == "SM_WarehouseLine_A1":
@@ -103,9 +101,10 @@ class VoyantDataset(Dataset):
                     for cl in self.classes:
                         if cl.lower() in label.lower():
                             labels.append(cl)
-                            print("Label: " + label + " Class: " + cl)
+                            # print("Label: " + label + " Class: " + cl)
                             break
                 labels.append("other")
+                point_num += 1
             tmp, _ = np.histogram(labels, range(self.num_classes + 1))
             labelweights += tmp
             coord_min, coord_max = (
@@ -198,11 +197,11 @@ class ScannetDatasetWholeScene:
         assert split in ["train", "test"]
         if self.split == "train":
             self.file_list = [
-                d for d in os.listdir(root) if d.find("Area_%d" % test_area) is -1
+                d for d in os.listdir(root) if d.find("Area_%d" % test_area) == -1
             ]
         else:
             self.file_list = [
-                d for d in os.listdir(root) if d.find("Area_%d" % test_area) is not -1
+                d for d in os.listdir(root) if d.find("Area_%d" % test_area) != -1
             ]
         self.scene_points_list = []
         self.semantic_labels_list = []
