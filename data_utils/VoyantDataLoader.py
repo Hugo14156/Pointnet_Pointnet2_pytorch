@@ -61,7 +61,7 @@ class VoyantDataset(Dataset):
                         usecols=["x", "y", "z", "object_name"],
                         chunksize=point_count,
                     ),
-                    total=9605,
+                    total=int(row_count / 16),
                 ):
                     csvs_split.append(chunk)
 
